@@ -30,6 +30,8 @@ lu_station.df <- dbGetQuery(con, '
                       sde.lu_stations
                             ') 
 
+save.image("Data/SMC_Data_Download_081820.Rdata")
+
 #####
 csci.df<- dbGetQuery(con, '
                      SELECT * FROM
