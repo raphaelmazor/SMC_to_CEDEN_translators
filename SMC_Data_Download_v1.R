@@ -25,6 +25,13 @@ chem_results.df<-dbGetQuery(con, '
                       SELECT * FROM
                       sde.tbl_chemistryresults
                             ') 
+###
+#We need handle updated data
+#1. Identify records that have been updated in sde.tbl_chemistryresults
+#2. Download the relevant records from unified_chemistry
+#3. Overwrite the data in chem_results.df with the updated data
+
+
 lu_station.df <- dbGetQuery(con, ' 
                       SELECT * FROM
                       sde.lu_stations
