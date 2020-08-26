@@ -108,16 +108,13 @@ CEDEN_benthic_benthicresults<-bmi_tax_sampleinfo.df %>%
 
 #CEDEN habitat templates
 
-#Many fields require manual filling. These are left as blank ("") for manual entry in Excel.
+#Many sample information fields require manual filling. These are left as blank ("") for manual entry in Excel.
 
 # this function contains the same steps for CEDEN_habitat_csci_part1, but was continued to include addition sample information 
 # some updates may still need to be made to the sample information fields, including additions from the BMI dataset and PHAB
-# might be nice to just have one or two functions..could also change benthic sections into a function
-
 
 # running function with input data (load below CEDENify_CSCI function below before running with this input data)
 # output is the "xdf" in the function, which is assigned below to CEDEN_habitat_csci
-
 CEDEN_habitat_csci <- CEDENify_CSCI(core=csci_core.df, Suppl1_mmi=csci_suppl1_mmi.df,Suppl1_grps = csci_suppl1_grps.df,
                                    Suppl1_OE = csci_suppl1_oe.df)
 
@@ -137,7 +134,7 @@ CEDENify_CSCI<-function(core= my_csci_core.df, Suppl1_mmi= my_csci_suppl1_mmi.df
     rename(SampleID = sampleid)
   
   
-  #Core, Suppl1_mmi, and Suppl1_grps
+  #Core, Suppl1_mmi, Suppl1_grps, oe
   all_csci<-core %>%
     filter(record_origin=="SMC") %>%
     select(sampleid, stationcode, sampledate, collectionmethodcode, fieldreplicate, count, number_of_mmi_iterations,
@@ -168,13 +165,13 @@ CEDENify_CSCI<-function(core= my_csci_core.df, Suppl1_mmi= my_csci_suppl1_mmi.df
     pivot_longer(cols = c(-SampleID, -StationCode, -SampleDate,-CollectionMethodCode,-FieldReplicate),
                  names_to = "AnalyteName",
                  values_to = "Result") %>% 
-    # note that I can designate which columns not to pivot wide above, instead of listing all the columns like previous method
+    # note that I can designate which columns not to pivot wide above, instead of listing all the columns
     mutate(AnalyteName = case_when(AnalyteName=="CSCI_Percentile"~"CSCI_Percentile", #The only variable that doesn't follow this naming convention
                                    AnalyteName=="CSCI"~"CSCI", #The only variable that doesn't follow this naming convention
                                    T~paste0("CSCI_", AnalyteName)))
  
   #add other SWAMP fields, and re-order
-  # still need to get soem information from phab and perhaps bmi
+  # still need to get some information from phab and perhaps bmi
   
   xdf<-all_csci %>% 
     mutate(SampleDate=SampleDate,#from csci core
@@ -224,6 +221,8 @@ CEDENify_CSCI<-function(core= my_csci_core.df, Suppl1_mmi= my_csci_suppl1_mmi.df
                                 grepl("CSCI_Pc_",AnalyteName)~"none",
                                 grepl("CSCI_pGroup",AnalyteName)~"none",
                                 T~"error"))
+  
+  # making sure function returns only xdf, not intermediates
   return(xdf)
 }
 
