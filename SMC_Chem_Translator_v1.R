@@ -16,7 +16,7 @@ CEDEN_chem_labbatch<-chem_batch.df %>%
 
 CEDEN_chem_chemresults<-chem_results.df %>%
   # filter() %>% #Eventually add code to filter out entries we don't want to deal withleft_join(chem_batch.df %>%
-  inner_join(CEDEN_chem_labbatch<-chem_batch.df %>%
+  inner_join(chem_batch.df %>%
               select(labbatch,preparationpreservationname,preparationpreservationdate,digestextractmethod)) %>%
     transmute(StationCode=stationcode,
              SampleDate=sampledate,
