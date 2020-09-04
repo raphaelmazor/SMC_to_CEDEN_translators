@@ -135,12 +135,17 @@ csci_suppl1_oe.df<- dbGetQuery(con, '
 
 bmi_tax_results.df<-dbGetQuery(con, ' 
                       SELECT * FROM
-                      sde.tbl_taxonomyresults
-                            ') 
+                       sde.tbl_taxonomyresults
+                               ') 
 bmi_tax_sampleinfo.df<-dbGetQuery(con, ' 
                       SELECT * FROM
                       sde.tbl_taxonomysampleinfo
                             ') 
+bmi_tax_unified.df<-dbGetQuery(con, ' 
+                      SELECT * FROM
+                       sde.unified_taxonomy
+                               ')
+save(bmi_tax_unified.df, file="Data/bmi_tax_unified.df.csv")
 
 bmi_csci<-list(lu_station.df, bmi_tax_results.df, bmi_tax_sampleinfo.df,csci_core.df, csci_suppl1_grps.df, csci_suppl1_mmi.df, csci_suppl1_oe.df)
 save(bmi_csci, file="Data/bmi_csci.Rdata")

@@ -10,11 +10,15 @@ csci_suppl1_grps.df<-bmi_csci[[5]]
 csci_suppl1_mmi.df<-bmi_csci[[6]]
 csci_suppl1_oe.df<-bmi_csci[[7]]
 
+load(file="Data/bmi_tax_unified.df.csv")
 
-CEDEN_benthic_locations<-bmi_tax_sampleinfo.df %>%
-  # filter() %>%
+
+CEDEN_benthic_locations<-#bmi_tax_sampleinfo.df %>%
+  bmi_tax_unified.df %>%
+  filter(record_origin=="SMC") %>%
   inner_join(lu_station.df %>%
-               select(stationcode=stationid, latitude,longitude) )%>%
+               select(stationcode=stationid, latitude,longitude, smcshed) )%>%
+  filter(smcshed!="San Gabriel") %>%
   transmute(StationCode=stationcode,
             SampleDate=sampledate,
             # ProjectCode=paste0("SMC_",login_owner, login_year))
@@ -35,12 +39,17 @@ CEDEN_benthic_locations<-bmi_tax_sampleinfo.df %>%
             StationDetailVerBy="",
             StationDetailVerDate="",
             StationDetailComments=""
-  )
+  ) %>%
+  unique()
 
-CEDEN_benthic_benthicresults<-bmi_tax_sampleinfo.df %>%
-  # filter() %>%
-  inner_join(bmi_tax_results.df,
-             by=c("stationcode","sampledate","fieldreplicate","fieldsampleid")) %>%
+CEDEN_benthic_benthicresults<-#bmi_tax_sampleinfo.df %>%
+  bmi_tax_unified.df %>%
+  filter(record_origin=="SMC") %>%
+  inner_join(lu_station.df %>%
+               select(stationcode=stationid, latitude,longitude, smcshed) )%>%
+  filter(smcshed!="San Gabriel") %>%
+  # inner_join(bmi_tax_results.df,
+             # by=c("stationcode","sampledate","fieldreplicate","fieldsampleid")) %>%
   # inner_join(lu_station.df %>%               select(stationcode=stationid, latitude,longitude) )%>%
   transmute(
     StationCode=stationcode,
@@ -48,14 +57,14 @@ CEDEN_benthic_benthicresults<-bmi_tax_sampleinfo.df %>%
     ProjectCode="SMC",
     EventCode="BA",
     ProtocolCode="SWAMP_2016_WS",
-    AgencyCode=agencycode_labeffort.y, ######Really should be from phab
+    AgencyCode=agencycode, ######Really should be from phab
     SampleComments="", ######Really should be from phab
     LocationCode="X",
     GeometryShape="Point",
     CollectionTime="00:00",
     CollectionMethodCode=collectionmethodcode,
     SampleTypeCode="Integrated",
-    Replicate=fieldreplicate,
+    Replicate=replicate,
     CollectionDeviceName="D-Frame Kick Net",
     CollectionDepth=-88,
     UnitCollectionDepth="m",
@@ -64,11 +73,11 @@ CEDEN_benthic_benthicresults<-bmi_tax_sampleinfo.df %>%
     BenthicCollectionComments=benthiccollectioncomments,
     GrabSize=.99,
     UnitGrabSize="m2",
-    ReplicateName=replicatename,
+    ReplicateName="",
     ReplicateCollectionDate="",
-    NumberJars=numberjars,
-    BenthicCollectionDetailComments=benthiccollectiondetailcomments,
-    AgencyCode_LabEffort=agencycode_labeffort.y,
+    NumberJars="",
+    BenthicCollectionDetailComments="",
+    AgencyCode_LabEffort=agencycode,
     PersonnelCode_LabEffort=personnelcode_labeffort,
     PercentSampleCounted=percentsamplecounted,
     TotalGrids=totalgrids,
@@ -79,24 +88,24 @@ CEDEN_benthic_benthicresults<-bmi_tax_sampleinfo.df %>%
     ExtraOrganismCount=extraorganismcount,
     QCOrganismCount=qcorganismcount,
     DiscardedOrganismCount=discardedorganismcount,
-    EffortQACode=qacode.x,
+    EffortQACode=qacode,
     BenthicLabEffortComments=benthiclabeffortcomments,
     FinalID=finalid,
     LifeStageCode=lifestagecode,
     Distinct=distinctcode,
     BAResult=baresult,
-    Result=result,
-    UnitName=unit,
+    Result="",
+    UnitName="count",
     ResQualCode=resqualcode,
-    QACode=qacode.y,
+    QACode=qacode,
     ComplianceCode="",
     BatchVerificationCode="",
     TaxonomicQualifier=taxonomicqualifier,
-    ExcludedTaxa=excludedtaxa,
+    ExcludedTaxa="NR",
     PersonnelCode_Result=personnelcode_results,
     LabSampleID=labsampleid,
     EnterDate="",
-    BenthicResultComments=benthicresultscomments
+    BenthicResultComments=""
   )
 
 
