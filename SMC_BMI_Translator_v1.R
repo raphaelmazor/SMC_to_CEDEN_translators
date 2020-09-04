@@ -22,12 +22,12 @@ CEDEN_benthic_locations<-bmi_tax_sampleinfo.df %>%
             EventCode="BA",
             ProtocolCode="SWAMP_2016_WS",
             AgencyCode="SCCWRP",
-            SampleComments="",
+            SampleComments="", ######Really should be from phab
             LocationCode="Thalweg",
             GeometryShape="Point",
             CoordinateNumber=1,
-            ActualLatitude=latitude, #This is target. Where is actual?
-            ActualLongitude=longitude, #This is target. Where is actual?
+            ActualLatitude=latitude, ######Really should be from phab
+            ActualLongitude=longitude, ######Really should be from phab
             Datum="WGS84",
             CoordinateSource="GPS", #If we find the actuals...
             Elevation="",
@@ -48,8 +48,8 @@ CEDEN_benthic_benthicresults<-bmi_tax_sampleinfo.df %>%
     ProjectCode="SMC",
     EventCode="BA",
     ProtocolCode="SWAMP_2016_WS",
-    AgencyCode=agencycode_labeffort.y, #Really should be from phab
-    SampleComments="",
+    AgencyCode=agencycode_labeffort.y, ######Really should be from phab
+    SampleComments="", ######Really should be from phab
     LocationCode="X",
     GeometryShape="Point",
     CollectionTime="00:00",

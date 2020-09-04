@@ -29,6 +29,18 @@ chem_results.df<-dbGetQuery(con, '
                       sde.tbl_chemistryresults
                             ') 
 
+tox_batch.df<-dbGetQuery(con, ' 
+                      SELECT * FROM
+                      sde.tbl_toxicitybatch
+                            ') 
+tox_results.df<-dbGetQuery(con, ' 
+                      SELECT * FROM
+                      sde.tbl_toxicityresults
+                            ') 
+tox_summary.df<-dbGetQuery(con, ' 
+                      SELECT * FROM
+                      sde.tbl_toxicitysummary
+                            ') 
 
 
 ###
@@ -86,6 +98,20 @@ lu_station.df <- dbGetQuery(con, '
                       sde.lu_stations
                             ') 
 
+eval.df <- dbGetQuery(con, ' 
+                      SELECT * FROM
+                      sde.unified_siteeval
+                            ') 
+evalsites<-lu_station.df <- dbGetQuery(con, ' 
+                      SELECT * FROM
+                      sde.lu_evalstations
+                            ') 
+
+eval.df2<-eval.df %>%
+  select(-createdate, -modifieddate, -objectid) %>%
+  inner_join(evalsites                )
+write.csv(eval.df2, file="Data/eval.csv", row.names = F)
+
 save.image("Data/SMC_Data_Download_081820.Rdata")
 
 #####
@@ -118,7 +144,8 @@ bmi_tax_sampleinfo.df<-dbGetQuery(con, '
 
 bmi_csci<-list(lu_station.df, bmi_tax_results.df, bmi_tax_sampleinfo.df,csci_core.df, csci_suppl1_grps.df, csci_suppl1_mmi.df, csci_suppl1_oe.df)
 save(bmi_csci, file="Data/bmi_csci.Rdata")
-###################################################
+# load("Data/bmi_csci.Rdata")
+##################################################
 asci.df<- dbGetQuery(con, '
                      SELECT * FROM
                      sde.analysis_asci')
@@ -127,5 +154,17 @@ gis.df<-dbGetQuery(con, '
                      SELECT * FROM
                      sde.tblgismetrics')
 
+phab.df<-dbGetQuery(con, '
+                     SELECT * FROM
+                     sde.unified_phab')
 
+phab_ipi.df<-dbGetQuery(con, '
+                     SELECT * FROM
+                     sde.analysis_phab_ipi')
 
+phab_mets.df<-dbGetQuery(con, '
+                     SELECT * FROM
+                     sde.analysis_phab_metrics')
+
+phab_data<-list( phab.df, phab_ipi.df,phab_mets.df)
+save(phab_data, file="Data/phab_data.Rdata")

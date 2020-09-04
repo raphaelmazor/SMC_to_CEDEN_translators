@@ -4,6 +4,11 @@ load("Data/SMC_Data_Download_081820.Rdata")
 head(chem_batch.df)
 head(chem_results.df)
 
+chem_results.df %>% 
+  select(analytename) %>%
+  unique() %>%
+  arrange(analytename)
+
 CEDEN_chem_labbatch<-chem_batch.df %>%
   # filter() %>% #Eventually add code to filter out entries we don't want to deal with
   transmute(LabBatch=labbatch,
