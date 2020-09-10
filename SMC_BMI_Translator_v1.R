@@ -1,6 +1,7 @@
 library(tidyverse)
 
 
+# loading csci and bmi data
 
 load("Data/bmi_csci.Rdata")
 # list(lu_station.df, bmi_tax_results.df, csci_core.df, csci_suppl1_grps.df, csci_suppl1_mmi.df, csci_suppl1_oe.df)
@@ -12,13 +13,45 @@ csci_suppl1_grps.df<-bmi_csci[[5]]
 csci_suppl1_mmi.df<-bmi_csci[[6]]
 csci_suppl1_oe.df<-bmi_csci[[7]]
 
+# getting phab data for sample information
+
+library(DBI) # needed to connect to database
+library(dbplyr) # needed to connect to database
+library(RPostgreSQL) # needed to connect to our database
+library(rstudioapi) # just so we can type the password as we run the script, so it is not written in the clear
+library(tidyverse)
+library(lubridate)
+library(readxl)
+
+# con is short for connection
+# Create connection to the database
+con <- dbConnect(
+  PostgreSQL(),
+  host = "192.168.1.17",
+  dbname = 'smc',
+  user = 'smcread',
+  password = '1969$Harbor' # if we post to github, we might want to do rstudioapi::askForPassword()
+)
+
+
+# this is info from unified phab... should I be looking at raw phab (tbl_phab?)
+phab_query <- "select * from sde.unified_phab"
+tbl_phab <- tbl(con, sql(phab_query))
+phab.1 <- as.data.frame(tbl_phab)
+phab_stationinfo <- phab.1 %>% 
+  select(stationcode, actual_latitude, actual_longitude,sampleagencycode) %>% 
+  distinct(stationcode, .keep_all = TRUE)
+ 
+
+
 
 
 
 CEDEN_benthic_locations<-bmi_tax_sampleinfo.df %>%
   # filter() %>%
   inner_join(lu_station.df %>%
-               select(stationcode=stationid, latitude,longitude) )%>%
+               select(stationcode=stationid, latitude,longitude)) %>% #to get target latitude and longitude
+  left_join(phab_stationinfo) %>% #to get actual latitude and longitude, and sampleagencycode
   transmute(StationCode=stationcode,
             SampleDate=sampledate,
             # ProjectCode=paste0("SMC_",login_owner, login_year))
@@ -30,8 +63,8 @@ CEDEN_benthic_locations<-bmi_tax_sampleinfo.df %>%
             LocationCode="Thalweg",
             GeometryShape="Point",
             CoordinateNumber=1,
-            ActualLatitude=latitude, #This is target. Where is actual?
-            ActualLongitude=longitude, #This is target. Where is actual?
+            ActualLatitude=actual_latitude, #use actual latitude from phab? not as complete as latitude from lu stations, but that's target?
+            ActualLongitude=actual_longitude,  #use actual latitude from phab? not as complete as latitude
             Datum="WGS84",
             CoordinateSource="GPS", #If we find the actuals...
             Elevation="",
@@ -40,6 +73,7 @@ CEDEN_benthic_locations<-bmi_tax_sampleinfo.df %>%
             StationDetailVerDate="",
             StationDetailComments=""
   )
+
 
 CEDEN_benthic_benthicresults<-bmi_tax_sampleinfo.df %>%
   # filter() %>%
@@ -175,17 +209,17 @@ CEDENify_CSCI<-function(core= my_csci_core.df, Suppl1_mmi= my_csci_suppl1_mmi.df
   
   xdf<-all_csci %>% 
     mutate(SampleDate=SampleDate,#from csci core
-           ProjectCode="",
+           ProjectCode="SMC",
            EventCode="BA",
-           ProtocolCode="SMC", #Or always "SWAMP_2016_WS"?
-           AgencyCode="", #get from bmi_tax_sampleinfo??
+           ProtocolCode="SWAMP_2016_WS", #always "SWAMP_2016_WS"?
+           AgencyCode="SCCWRP", #or get from bmi_tax_sampleinfo?? phab??... is this sampleagencycode?
            SampleComments="",
            LocationCode="X",
            GeometryShape="Point",
            CollectionTime="00:00",
            CollectionMethodCode=CollectionMethodCode, #from csci core, should be same info as in bmi_tax_sampleinfo
            Replicate=FieldReplicate, #from csci core
-           HabitatCollectionComments="",
+           HabitatCollectionComments="", #not sure where to find this information 
            MatrixName="benthic",
            MethodName = "CSCI_software_v1.x",
            # MethodName=paste0("CSCI_software_v",strsplit(packageVersion("CSCI") %>% as.character(),split=".")[[1]][1],".x"),
@@ -197,7 +231,7 @@ CEDENify_CSCI<-function(core= my_csci_core.df, Suppl1_mmi= my_csci_suppl1_mmi.df
            ComplianceCode="Pend",
            BatchVerificationCode="NR",
            CollectionDeviceName="D-Frame Kick Net", #Or do we want to leave blank?
-           HabitatResultComments=""
+           HabitatResultComments="" #not sure where to find this information
            
     ) %>%
     select(SampleID, StationCode, SampleDate, 
